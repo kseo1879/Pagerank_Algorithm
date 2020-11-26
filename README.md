@@ -1,6 +1,6 @@
 # PAGERANK
 
-This is the submittion for PAGERANK-Algorithm Simulation for SOFT3410 Assignment2
+This is the submittion for PAGERANK-Algorithm Simulation for SOFT3410 Assignment2 Part 2
 
 By: Calvin Seo
 
