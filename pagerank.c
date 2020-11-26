@@ -15,6 +15,8 @@ void pagerank(list* plist, int ncores, int npages, int nedges, double dampener_i
         - implement any other useful data structures
     */
 
+    omp_set_num_threads(ncores);
+
     double dampener = dampener_in;
 
     //First we need a place to store the page rank scores and initialize them
@@ -55,7 +57,6 @@ void pagerank(list* plist, int ncores, int npages, int nedges, double dampener_i
         cursur_1 = cursur_1->next;
     }
 
-    omp_set_num_threads(ncores);
 
     while(1) {
         // cursur  = plist->head;
