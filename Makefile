@@ -25,3 +25,6 @@ test: $(TESTS)
         echo "FAILED THE TEST: $*"; \
     fi
 	@rm $@
+
+# got the idea of testing from
+# https://stackoverflow.com/questions/23020191/how-to-use-in-and-out-files-for-testing-in-a-unix-environment
