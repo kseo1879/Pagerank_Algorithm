@@ -82,11 +82,13 @@ void pagerank(list* plist, int ncores, int npages, int nedges, double dampener_i
             }
             //Now we need to update the pscores
             p_rank[(current_index * plist_length) + i] = first_calculation + (dampener * inner_sum);
-            // cursur = cursur->next;
+
         }
-    
+
         for(int i = 0; i < plist->length; i ++) {
+
             converged_sum += (pow(p_rank[current_index  * plist_length + i] - p_rank[prev_index * plist_length + i], 2));
+        
         }
 
         if(EPSILON >= sqrt(converged_sum)) {
@@ -96,6 +98,7 @@ void pagerank(list* plist, int ncores, int npages, int nedges, double dampener_i
                 // cursur = cursur[i]->next;
             }
             break;
+            
         } else {
             //We need to change the current index and previous index to continue with the interation
             int temp = 0;
