@@ -6,7 +6,7 @@
 #include <omp.h>
 #include "pagerank.h"
 
-void pagerank(list* plist, int ncores, int npages, int nedges, double dampener) {
+void pagerank(list* plist, int ncores, int npages, int nedges, double dampener_in) {
 
     /*
         to do:
@@ -17,7 +17,7 @@ void pagerank(list* plist, int ncores, int npages, int nedges, double dampener) 
 
     omp_set_num_threads(ncores);
 
-    double dampener_in = dampener;
+    double dampener = dampener_in;
 
     //First we need a place to store the page rank scores and initialize them
     double *p_rank = malloc(sizeof(double) * (plist->length * 2));
@@ -42,21 +42,18 @@ void pagerank(list* plist, int ncores, int npages, int nedges, double dampener) 
     // node *inlink_node = NULL;
 
     //To minimize calculation here is the first part of the equation which is equal in most terms. 
-    double first_calculation = ((1 - dampener_in) / npages);
+    double first_calculation = ((1 - dampener) / npages);
 
-    int plist_length = npages;
+    int plist_length = plist->length;
     // int inlink_length = 0;
 
-    // Tempory array to store the conversenge sum.
-    // double *temp_sum = malloc(sizeof(double) * plist_length);
+    double *temp_sum = malloc(sizeof(double) * plist_length);
 
-    //Make a plist
-    node **cursur = (node **)malloc(sizeof(node *) * plist_length);
+    node **cursur = (node **)malloc(sizeof(node *) * plist->length);
 
     cursur_1 = plist->head;
 
-    //Store the pages inside plist into the cursur array
-    for(int i = 0; i < plist_length; i++) {
+    for(int i = 0; i < plist->length; i++) {
         cursur[i] = (cursur_1);
         cursur_1 = cursur_1->next;
     }
@@ -71,7 +68,7 @@ void pagerank(list* plist, int ncores, int npages, int nedges, double dampener) 
 
             double inner_sum = 0;
             int inlink_length = 0;
-            // int offset = prev_index * plist_length;
+            int offset = prev_index * plist_length;
 
             //This means that there is a page that is comminginto this page. 
             if(cursur[i]->page->inlinks != NULL) {
@@ -80,38 +77,35 @@ void pagerank(list* plist, int ncores, int npages, int nedges, double dampener) 
                 inlink_length = cursur[i]->page->inlinks->length;
 
                 for(int j = 0; j < inlink_length; j ++) {
-                    inner_sum += (p_rank[inlink_node->page->index * 2 + prev_index] 
+                    inner_sum += (p_rank[(offset) + inlink_node->page->index] 
                         / inlink_node->page->noutlinks);
                     inlink_node = inlink_node->next;
                 }
 
             }
             //Now we need to update the pscores
-            p_rank[i * 2 + current_index] = first_calculation + (dampener_in * inner_sum);
+            p_rank[(current_index * plist_length) + i] = first_calculation + (dampener * inner_sum);
 
-        }        
-        // #pragma omp parallel for
-        // for(int i = 0; i < plist_length; i ++) {
-        //     double temp = p_rank[i * 2 + current_index] - p_rank[i * 2 + prev_index];
-        //     temp_sum[i] = (temp * temp);
-        //     // converged_sum += pow(p_rank[current_index  * plist_length + i] - p_rank[prev_index * plist_length + i], 2);
-        // }
+        }
+        //This is the tempory variable to calculated the convergence sum.
 
-        // for(int i = 0; i < plist_length; i ++) {
-        //     converged_sum += temp_sum[i];
-        // }
+        
 
-        //Parallel version of the code worsen the performance
+        #pragma omp parallel for 
         for(int i = 0; i < plist_length; i ++) {
-            double temp = p_rank[i * 2 + current_index] - p_rank[i * 2 + prev_index];
-            converged_sum += (temp * temp);
+            double temp = p_rank[current_index  * plist_length + i] - p_rank[prev_index * plist_length + i];
+            temp_sum[i] = (temp * temp);
             // converged_sum += pow(p_rank[current_index  * plist_length + i] - p_rank[prev_index * plist_length + i], 2);
         }
+        
+        for(int i = 0; i < plist_length; i++) {
+            converged_sum += temp_sum[i];
+        }
 
-        //The end condition
         if(EPSILON >= sqrt(converged_sum)) {
+            // cursur = plist->head;
             for (int i = 0; i < plist_length; i++) {
-                printf("%s %.4lf\n", cursur[i]->page->name, p_rank[i * 2 + current_index]);
+                printf("%s %.4lf\n", cursur[i]->page->name, p_rank[(current_index * plist_length) + i]);
                 // cursur = cursur[i]->next;
             }
             break;
@@ -125,9 +119,9 @@ void pagerank(list* plist, int ncores, int npages, int nedges, double dampener) 
         }
     }
 
-    // free(temp_sum);
     free(p_rank);
     free(cursur);
+    free(temp_sum);
 }
 
 /*

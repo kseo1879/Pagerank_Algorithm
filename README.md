@@ -62,3 +62,5 @@ It will set the thread numbers to the same number of the cores.
 
 However you can manually change this number to test with different number of threads for testing the performance. 
 
+### 4. What is pagerank_old.c file?
+It is the old version of the pagerank.c where I missed some of the optimization

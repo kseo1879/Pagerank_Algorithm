@@ -8,7 +8,7 @@ TESTS = $(patsubst %.in, %.test, $(INPUTS))
 .PHONY: clean test
 all: $(TARGET)
 
-pagerank: ./pagerank.c #pagerank.h
+pagerank: ./pagerank.c pagerank.h
 	$(CC) $(CFLAGS) $^ -o $@ -lpthread -lm -g
 
 clean:
@@ -22,7 +22,7 @@ test: $(TESTS)
 	@if cmp -s $@ $*.out; then \
         echo "PASSED THE TEST: $*.in, AGAINST: $*.out"; \
     else \
-        echo "FAILED THE TEST: $*"; \
+        echo "FAILED THE TEST: $*.in"; \
     fi
 	@rm $@
 
