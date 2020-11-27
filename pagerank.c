@@ -37,8 +37,8 @@ void pagerank(list* plist, int ncores, int npages, int nedges, double dampener) 
     //Here is some of the variable that we need for the calculation
     double converged_sum = 0;
 
-    //cursur is the current page while inlink_node would the in linklink pages to the cursur
-    node *cursur_1 = NULL;
+    //cursor is the current page while inlink_node would the in linklink pages to the cursor
+    node *cursor_1 = NULL;
     // node *inlink_node = NULL;
 
     //To minimize calculation here is the first part of the equation which is equal in most terms. 
@@ -51,19 +51,19 @@ void pagerank(list* plist, int ncores, int npages, int nedges, double dampener) 
     // double *temp_sum = malloc(sizeof(double) * plist_length);
 
     //Make a plist
-    node **cursur = (node **)malloc(sizeof(node *) * plist_length);
+    node **cursor = (node **)malloc(sizeof(node *) * plist_length);
 
-    cursur_1 = plist->head;
+    cursor_1 = plist->head;
 
-    //Store the pages inside plist into the cursur array
+    //Store the pages inside plist into the cursor array
     for(int i = 0; i < plist_length; i++) {
-        cursur[i] = (cursur_1);
-        cursur_1 = cursur_1->next;
+        cursor[i] = (cursor_1);
+        cursor_1 = cursor_1->next;
     }
 
 
     while(1) {
-        // cursur  = plist->head;
+        // cursor  = plist->head;
         converged_sum = 0;
 
         #pragma omp parallel for
@@ -74,10 +74,10 @@ void pagerank(list* plist, int ncores, int npages, int nedges, double dampener) 
             // int offset = prev_index * plist_length;
 
             //This means that there is a page that is comminginto this page. 
-            if(cursur[i]->page->inlinks != NULL) {
+            if(cursor[i]->page->inlinks != NULL) {
                 //Initialization
-                node *inlink_node = cursur[i]->page->inlinks->head;
-                inlink_length = cursur[i]->page->inlinks->length;
+                node *inlink_node = cursor[i]->page->inlinks->head;
+                inlink_length = cursor[i]->page->inlinks->length;
 
                 for(int j = 0; j < inlink_length; j ++) {
                     inner_sum += (p_rank[inlink_node->page->index * 2 + prev_index] 
@@ -111,8 +111,8 @@ void pagerank(list* plist, int ncores, int npages, int nedges, double dampener) 
         //The end condition
         if(EPSILON >= sqrt(converged_sum)) {
             for (int i = 0; i < plist_length; i++) {
-                printf("%s %.4lf\n", cursur[i]->page->name, p_rank[i * 2 + current_index]);
-                // cursur = cursur[i]->next;
+                printf("%s %.4lf\n", cursor[i]->page->name, p_rank[i * 2 + current_index]);
+                // cursor = cursor[i]->next;
             }
             break;
             
@@ -127,7 +127,7 @@ void pagerank(list* plist, int ncores, int npages, int nedges, double dampener) 
 
     // free(temp_sum);
     free(p_rank);
-    free(cursur);
+    free(cursor);
 }
 
 /*
